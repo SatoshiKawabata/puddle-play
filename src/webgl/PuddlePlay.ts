@@ -18,9 +18,9 @@ const FRAGMENT_SHADER = `
       gl_FragColor = vec4( color, 1.0 );
     }
   `;
-const SEPARATION = 5;
-const AMOUNTX = 200;
-const AMOUNTY = 200;
+const SEPARATION = 3;
+const AMOUNTX = 300;
+const AMOUNTY = 300;
 const NUM_PARTICLES = AMOUNTX * AMOUNTY;
 
 const dt = 0.1;
@@ -28,7 +28,7 @@ const c = 0.6;
 const h = 0.1;
 const A = ((c * dt) / h) * ((c * dt) / h);
 const B = 2.0 - 4 * A;
-const DAMP = 0.9999;
+const DAMP = 0.999;
 
 export class PuddlePlay {
   private camera: THREE.PerspectiveCamera;

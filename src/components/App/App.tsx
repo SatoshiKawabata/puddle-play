@@ -5,6 +5,7 @@ import "./App.css";
 function App() {
   const [color, setColor] = useState("#00fbff");
   const [isShowUI, setIsShowUI] = useState(false);
+  const [centerValue, setCenterValue] = useState(0);
 
   useEffect(() => {
     // get color from storage
@@ -12,6 +13,14 @@ function App() {
     if (colorStr) {
       setColor(colorStr);
     }
+
+    // set wave value
+    setInterval(() => {
+      const t = Date.now() / 500;
+      const v = Math.sin(t) + 1 + Math.random();
+      console.log(v);
+      setCenterValue(v);
+    }, 100);
   }, []);
 
   useEffect(() => {
@@ -24,7 +33,7 @@ function App() {
 
   return (
     <>
-      <PuddlePlayContainer color={color} centerValue={1} />
+      <PuddlePlayContainer color={color} centerValue={centerValue} />
       {isShowUI && (
         <div className="ui-container">
           <input
