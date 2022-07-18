@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { ColorRepresentation } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module";
 
@@ -27,9 +28,9 @@ const c = 0.6;
 const h = 0.1;
 const A = ((c * dt) / h) * ((c * dt) / h);
 const B = 2.0 - 4 * A;
-const DAMP = 0.9999999999;
+const DAMP = 0.9999;
 
-export class Puddle {
+export class PuddlePlay {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
@@ -151,7 +152,9 @@ export class Puddle {
   }
 
   setColor(color: THREE.ColorRepresentation) {
-    this.material.uniforms.color.value = new THREE.Color(color);
+    this.material.uniforms.color.value.set(new THREE.Color(color));
+    this.material.needsUpdate = true;
+    this.material.uniformsNeedUpdate = true;
   }
 
   setCenterValue(value: number) {
