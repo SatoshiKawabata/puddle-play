@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "../../adapter/useLocalStorage";
 import { AudioPeak } from "../../audio/AudioPeak";
+import { useAnimationFrame } from "../../hooks/useRequestAnimationFrame";
 import PuddlePlayContainer from "../PuddlePlay/PuddlePlayContainer";
 import "./App.css";
 
@@ -55,21 +56,21 @@ function App() {
         peakRef.current.close();
       }
       peakRef.current = new AudioPeak(stream);
-      clearInterval(peakTimerIdRef.current);
-      peakTimerIdRef.current = setInterval(() => {
-        if (peakRef.current) {
-          const peakValue = peakRef.current.getCurrentPeak();
-          setCenterValue(peakValue * 100);
-          const timeDomain = peakRef.current.getTimeDomainByteArray();
-          setTimeDomainData(
-            timeDomain.map((value) => {
-              return value;
-            })
-          );
-        }
-      }, 50);
     })();
   }, [selectedDeviceId]);
+
+  useAnimationFrame(() => {
+    if (peakRef.current) {
+      const peakValue = peakRef.current.getCurrentPeak();
+      setCenterValue(peakValue * 100);
+      const timeDomain = peakRef.current.getTimeDomainByteArray();
+      setTimeDomainData(
+        timeDomain.map((value) => {
+          return value;
+        })
+      );
+    }
+  });
 
   return (
     <>
@@ -81,6 +82,7 @@ function App() {
       {isShowUI && (
         <div className="ui-container">
           <div>
+            <label>Color: </label>
             <input
               type="color"
               value={color}

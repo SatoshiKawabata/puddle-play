@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { ColorRepresentation } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module";
 
@@ -43,11 +42,10 @@ export class PuddlePlay {
   private scales = new Float32Array(NUM_PARTICLES);
   private scalesPast = new Float32Array(NUM_PARTICLES);
   private scalesNext = new Float32Array(NUM_PARTICLES);
-  private count = 0;
   private centerValue = 0;
   private damp = 0.999;
 
-  constructor(private container: HTMLDivElement) {
+  constructor(container: HTMLDivElement) {
     this.camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -182,8 +180,6 @@ export class PuddlePlay {
       .array as Array<number>;
     const scales = particles.geometry.attributes.scale.array as Array<number>;
 
-    // const value =
-    //   Math.sin(this.count * 0.3) + 1 + (Math.sin(this.count * 0.5) + 1);
     const value = this.centerValue;
     const epicenter = Math.floor(AMOUNTY / 2 + (AMOUNTY * AMOUNTX) / 2);
     const epicenterY =
@@ -242,8 +238,6 @@ export class PuddlePlay {
     particles.geometry.attributes.scale.needsUpdate = true;
 
     renderer.render(this.scene, camera);
-
-    this.count += 0.1;
 
     this.stats.update();
   };
