@@ -5,6 +5,7 @@ import "./PuddlePlayContainer.css";
 interface Props {
   centerValue: number;
   color: THREE.ColorRepresentation;
+  damp: number;
 }
 function PuddlePlayContainer(p: Props) {
   const container = useRef<HTMLDivElement>(null);
@@ -30,6 +31,13 @@ function PuddlePlayContainer(p: Props) {
     }
     puddlePlayRef.current.setColor(p.color);
   }, [p.color]);
+
+  useEffect(() => {
+    if (!puddlePlayRef.current) {
+      return;
+    }
+    puddlePlayRef.current.setDamp(p.damp);
+  }, [p.damp]);
 
   return <div ref={container} className="three-container" />;
 }

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocalStorage } from "../../adapter/useLocalStorage";
 import { AudioPeak } from "../../audio/AudioPeak";
 import PuddlePlayContainer from "../PuddlePlay/PuddlePlayContainer";
 import "./App.css";
 
 function App() {
-  const [color, setColor] = useState("#00fbff");
   const [isShowUI, setIsShowUI] = useState(false);
   const [centerValue, setCenterValue] = useState(0);
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
@@ -14,14 +14,11 @@ function App() {
   const peakRef = useRef<AudioPeak>();
   const peakTimerIdRef = useRef<number>();
   const [timeDomainData, setTimeDomainData] = useState<Uint8Array | null>(null);
+  const { getColor, getDamp, saveColor, saveDamp } = useLocalStorage();
+  const [color, setColor] = useState(getColor());
+  const [damp, setDamp] = useState(getDamp());
 
   useEffect(() => {
-    // get color from storage
-    const colorStr = localStorage.getItem("color");
-    if (colorStr) {
-      setColor(colorStr);
-    }
-
     (async () => {
       // get devices
       const deviceInfos = await navigator.mediaDevices.enumerateDevices();
@@ -76,7 +73,11 @@ function App() {
 
   return (
     <>
-      <PuddlePlayContainer color={color} centerValue={centerValue} />
+      <PuddlePlayContainer
+        color={color}
+        centerValue={centerValue}
+        damp={damp}
+      />
       {isShowUI && (
         <div className="ui-container">
           <div>
@@ -85,8 +86,7 @@ function App() {
               value={color}
               onChange={(e) => {
                 setColor(e.target.value);
-                // save color
-                localStorage.setItem("color", e.target.value);
+                saveColor(e.target.value);
               }}
             />
           </div>
@@ -126,6 +126,23 @@ function App() {
               })}
             </div>
           )}
+          <div>
+            <label>damp: </label>
+            <input
+              type="range"
+              min={0}
+              max={10000}
+              value={(10000 / 0.1) * (damp - 0.9)}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                const newDamp = 0.9 + (val * 0.1) / 10000;
+                setDamp(newDamp);
+                saveDamp(newDamp);
+              }}
+              style={{ width: 300 }}
+            ></input>
+            {damp}
+          </div>
         </div>
       )}
     </>

@@ -28,7 +28,6 @@ const c = 0.6;
 const h = 0.1;
 const A = ((c * dt) / h) * ((c * dt) / h);
 const B = 2.0 - 4 * A;
-const DAMP = 0.999;
 
 export class PuddlePlay {
   private camera: THREE.PerspectiveCamera;
@@ -46,6 +45,7 @@ export class PuddlePlay {
   private scalesNext = new Float32Array(NUM_PARTICLES);
   private count = 0;
   private centerValue = 0;
+  private damp = 0.999;
 
   constructor(private container: HTMLDivElement) {
     this.camera = new THREE.PerspectiveCamera(
@@ -86,7 +86,7 @@ export class PuddlePlay {
               scales[iy + (ix + 1) * AMOUNTY]) +
           B * scales[iy + ix * AMOUNTY] -
           scalesPast[iy + ix * AMOUNTY];
-        scalesNext[scaleIdx] *= DAMP;
+        scalesNext[scaleIdx] *= this.damp;
 
         // y position
         const getPosIdx = (diffX: number, diffY: number) => {
@@ -101,7 +101,7 @@ export class PuddlePlay {
               positions[getPosIdx(1, 0)]) +
           B * positions[getPosIdx(0, 0)] -
           yPast[scaleIdx];
-        yNext[scaleIdx] *= DAMP;
+        yNext[scaleIdx] *= this.damp;
       }
     }
     for (let ix = 1; ix < AMOUNTX - 1; ix++) {
@@ -161,6 +161,10 @@ export class PuddlePlay {
     this.centerValue = value;
   }
 
+  setDamp(value: number) {
+    this.damp = value;
+  }
+
   private render = () => {
     requestAnimationFrame(this.render);
 
@@ -199,7 +203,7 @@ export class PuddlePlay {
               scales[iy + (ix + 1) * AMOUNTY]) +
           B * scales[iy + ix * AMOUNTY] -
           scalesPast[iy + ix * AMOUNTY];
-        scalesNext[scaleIdx] *= DAMP;
+        scalesNext[scaleIdx] *= this.damp;
 
         // y position
         const getPosIdx = (diffX: number, diffY: number) => {
@@ -214,7 +218,7 @@ export class PuddlePlay {
               positions[getPosIdx(1, 0)]) +
           B * positions[getPosIdx(0, 0)] -
           yPast[scaleIdx];
-        yNext[scaleIdx] *= DAMP;
+        yNext[scaleIdx] *= this.damp;
       }
     }
     for (let ix = 1; ix < AMOUNTX - 1; ix++) {
