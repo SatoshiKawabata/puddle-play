@@ -129,7 +129,7 @@ function App() {
             </div>
           )}
           <div>
-            <label>damp: </label>
+            <label>Damping factor: </label>
             <input
               type="range"
               min={0}
