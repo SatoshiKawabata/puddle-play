@@ -82,7 +82,7 @@ function App() {
       {isShowUI && (
         <div className="ui-container">
           <div>
-            <label>Color: </label>
+            <label>Wave Color: </label>
             <input
               type="color"
               value={color}
@@ -94,7 +94,7 @@ function App() {
           </div>
           <div>
             <label>
-              Audio input
+              Audio input:&nbsp;
               <select
                 onChange={(e) => {
                   setSelectedDeviceId(e.target.value);
@@ -113,7 +113,7 @@ function App() {
           </div>
           {timeDomainData && (
             <div>
-              <label>Audio wave form</label>
+              <label>Audio wave form:&nbsp;</label>
               {Array.from(timeDomainData).map((td) => {
                 return (
                   <div
