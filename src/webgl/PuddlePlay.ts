@@ -144,7 +144,7 @@ export class PuddlePlay {
 
     window.addEventListener("resize", this.onWindowResize);
 
-    container.appendChild(this.stats.dom);
+    // container.appendChild(this.stats.dom);
 
     requestAnimationFrame(this.render);
   }
