@@ -8,3 +8,23 @@ https://puddle-play.vercel.app/
 - `Wave Color: ` you can change the wave color
 - `Audio input: ` you can select the audio input
 - `damping factor: ` damping factor of wave
+
+## Development
+
+install
+
+```
+yarn install
+```
+
+development
+
+```
+yarn dev
+```
+
+build
+
+```
+yarn build
+```
