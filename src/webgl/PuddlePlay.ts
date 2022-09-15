@@ -1,4 +1,8 @@
 import * as THREE from "three";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module";
 
@@ -144,6 +148,32 @@ export class PuddlePlay {
 
     window.addEventListener("resize", this.onWindowResize);
 
+    const renderPass = new RenderPass(this.scene, this.camera);
+    const bloomParams = {
+      /** トーンマッピング: 露光量 */
+      exposure: 1.8,
+
+      /** 発光エフェクト: 強さ */
+      bloomStrength: 3.0,
+
+      /** 発光エフェクト: 半径 */
+      bloomRadius: 1.2,
+
+      /** 発光エフェクト: 閾値 */
+      bloomThreshold: 0.0,
+    };
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(container.clientWidth, container.clientHeight),
+      bloomParams.bloomStrength,
+      bloomParams.bloomRadius,
+      bloomParams.bloomThreshold
+    );
+
+    const effectComposer = new EffectComposer(this.renderer);
+    effectComposer.addPass(renderPass);
+    effectComposer.addPass(bloomPass);
+    effectComposer.setSize(container.clientWidth, container.clientHeight);
+
     // container.appendChild(this.stats.dom);
 
     requestAnimationFrame(this.render);
@@ -239,7 +269,7 @@ export class PuddlePlay {
 
     renderer.render(this.scene, camera);
 
-    this.stats.update();
+    // this.stats.update();
   };
 
   private onWindowResize = () => {
