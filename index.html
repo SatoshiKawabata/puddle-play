@@ -9,5 +9,19 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) =>
+              console.log("Register ServiceWorker successfully.", reg.scope)
+            )
+            .catch((err) =>
+              window.alert("Failed to register ServiceWorker.", err)
+            );
+        });
+      }
+    </script>
   </body>
 </html>
