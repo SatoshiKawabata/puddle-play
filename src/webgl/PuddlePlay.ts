@@ -39,6 +39,7 @@ export class PuddlePlay {
   private positions = new Float32Array(NUM_PARTICLES * 3);
   private yPast = new Float32Array(NUM_PARTICLES);
   private yNext = new Float32Array(NUM_PARTICLES);
+  private actualScales = new Float32Array(NUM_PARTICLES); // 実際にvertex shaderに渡す配列(負の値を取るとおかしくなるため用意した)
   private scales = new Float32Array(NUM_PARTICLES);
   private scalesPast = new Float32Array(NUM_PARTICLES);
   private scalesNext = new Float32Array(NUM_PARTICLES);
@@ -54,7 +55,15 @@ export class PuddlePlay {
     );
     this.camera.position.y = 500;
     this.scene = new THREE.Scene();
-    const { positions, yPast, yNext, scales, scalesPast, scalesNext } = this;
+    const {
+      positions,
+      yPast,
+      yNext,
+      actualScales,
+      scales,
+      scalesPast,
+      scalesNext,
+    } = this;
 
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iy = 0; iy < AMOUNTY; iy++) {
@@ -107,6 +116,8 @@ export class PuddlePlay {
         // scale
         const scaleIdx = iy + ix * AMOUNTY;
         scalesPast[scaleIdx] = scales[scaleIdx];
+        // 負の値を取らないようにする
+        actualScales[scaleIdx] = Math.max(0, scales[scaleIdx]);
         scales[scaleIdx] = scalesNext[scaleIdx];
 
         // z position
@@ -121,7 +132,7 @@ export class PuddlePlay {
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
+    geometry.setAttribute("scale", new THREE.BufferAttribute(actualScales, 1));
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {
@@ -174,11 +185,10 @@ export class PuddlePlay {
       yPast,
       renderer,
       camera,
+      scales,
+      positions,
+      actualScales,
     } = this;
-
-    const positions = particles.geometry.attributes.position
-      .array as Array<number>;
-    const scales = particles.geometry.attributes.scale.array as Array<number>;
 
     const value = this.centerValue;
     const epicenter = Math.floor(AMOUNTY / 2 + (AMOUNTY * AMOUNTX) / 2);
@@ -197,8 +207,8 @@ export class PuddlePlay {
               scales[iy + 1 + ix * AMOUNTY] +
               scales[iy + (ix - 1) * AMOUNTY] +
               scales[iy + (ix + 1) * AMOUNTY]) +
-          B * scales[iy + ix * AMOUNTY] -
-          scalesPast[iy + ix * AMOUNTY];
+          B * scales[scaleIdx] -
+          scalesPast[scaleIdx];
         scalesNext[scaleIdx] *= this.damp;
 
         // y position
@@ -222,6 +232,7 @@ export class PuddlePlay {
         // scale
         const scaleIdx = iy + ix * AMOUNTY;
         scalesPast[scaleIdx] = scales[scaleIdx];
+        actualScales[scaleIdx] = Math.max(0, scales[scaleIdx]);
         scales[scaleIdx] = scalesNext[scaleIdx];
 
         // z position
