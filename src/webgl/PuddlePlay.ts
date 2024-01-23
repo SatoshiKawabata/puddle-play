@@ -17,7 +17,7 @@ const FRAGMENT_SHADER = `
       gl_FragColor = vec4( color, 1.0 );
     }
   `;
-const SEPARATION = 3;
+const GAP = 3;
 const AMOUNTX = 300;
 const AMOUNTY = 300;
 const NUM_PARTICLES = AMOUNTX * AMOUNTY;
@@ -44,7 +44,12 @@ export class PuddlePlay {
   private scalesPast = new Float32Array(NUM_PARTICLES);
   private scalesNext = new Float32Array(NUM_PARTICLES);
   private centerValue = 0;
+  private centerX = Math.floor(AMOUNTX / 2);
+  private centerY = Math.floor(AMOUNTY / 2);
   private damp = 0.999;
+
+  private mouse = new THREE.Vector2();
+  private raycaster = new THREE.Raycaster();
 
   constructor(container: HTMLDivElement) {
     this.camera = new THREE.PerspectiveCamera(
@@ -68,9 +73,9 @@ export class PuddlePlay {
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iy = 0; iy < AMOUNTY; iy++) {
         const posIdx = iy * 3 + ix * 3 * AMOUNTY;
-        positions[posIdx] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2; // x
+        positions[posIdx] = ix * GAP - (AMOUNTX * GAP) / 2; // x
         positions[posIdx + 1] = 0; // y
-        positions[posIdx + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2; // z
+        positions[posIdx + 2] = iy * GAP - (AMOUNTY * GAP) / 2; // z
         const scaleIdx = iy + ix * AMOUNTY;
         yPast[scaleIdx] = 0;
         yNext[scaleIdx] = 0;
@@ -157,7 +162,62 @@ export class PuddlePlay {
 
     // container.appendChild(this.stats.dom);
 
+    this.renderer.domElement.addEventListener("mousemove", (event) => {
+      const element = event.currentTarget! as HTMLCanvasElement;
+      // canvas要素上のXY座標
+      const x = event.clientX - element.offsetLeft;
+      const y = event.clientY - element.offsetTop;
+      // canvas要素の幅・高さ
+      const w = element.offsetWidth;
+      const h = element.offsetHeight;
+
+      // -1〜+1の範囲で現在のマウス座標を登録する
+      this.mouse.x = (x / w) * 2 - 1;
+      this.mouse.y = -(y / h) * 2 + 1;
+    });
+
+    const cx = localStorage.getItem("centerX");
+    const cy = localStorage.getItem("centerY");
+    this.centerX = cx ? parseInt(cx) : Math.floor(AMOUNTX / 2);
+    this.centerY = cy ? parseInt(cy) : Math.floor(AMOUNTY / 2);
+
     requestAnimationFrame(this.render);
+  }
+
+  resetCenter() {
+    this.centerX = Math.floor(AMOUNTX / 2);
+    this.centerY = Math.floor(AMOUNTY / 2);
+    localStorage.removeItem("centerX");
+    localStorage.removeItem("centerY");
+  }
+
+  setCenter() {
+    // レイキャスト = マウス位置からまっすぐに伸びる光線ベクトルを生成
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    // その光線とぶつかったオブジェクトを得る
+    const intersects = this.raycaster.intersectObjects([this.particles], false);
+
+    if (intersects.length > 0) {
+      const targetPoint = intersects[0].point;
+      let minDist = Number.MAX_SAFE_INTEGER;
+      for (let ix = 0; ix < AMOUNTX; ix++) {
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+          const posIdx = iy * 3 + ix * 3 * AMOUNTY;
+          const x = this.positions[posIdx];
+          const y = this.positions[posIdx + 1];
+          const z = this.positions[posIdx + 2];
+          const dist = targetPoint.distanceTo(new THREE.Vector3(x, y, z));
+          if (dist <= minDist) {
+            this.centerX = ix;
+            this.centerY = iy;
+            minDist = dist;
+          }
+        }
+      }
+      localStorage.setItem("centerX", this.centerX.toString());
+      localStorage.setItem("centerY", this.centerY.toString());
+    }
   }
 
   setColor(color: THREE.ColorRepresentation) {
@@ -191,9 +251,8 @@ export class PuddlePlay {
     } = this;
 
     const value = this.centerValue;
-    const epicenter = Math.floor(AMOUNTY / 2 + (AMOUNTY * AMOUNTX) / 2);
-    const epicenterY =
-      Math.floor((AMOUNTY * 3) / 2 + (AMOUNTY * (AMOUNTX * 3)) / 2) + 1;
+    const epicenter = this.centerY + AMOUNTY * this.centerX;
+    const epicenterY = this.centerY * 3 + this.centerX * (AMOUNTX * 3) + 1;
     scales[epicenter] = value * 20;
     positions[epicenterY] = value * 20;
     // 一つ先の状態を計算する

@@ -53,13 +53,9 @@ function App() {
     setColor(hex);
   });
 
-  useEffect(() => {
-    document.addEventListener("keyup", (e) => {
-      if (e.key === "g") {
-        setIsShowUI(!isShowUI);
-      }
-    });
-  }, [isShowUI]);
+  useHotkeys("g", () => {
+    setIsShowUI(!isShowUI);
+  });
 
   useEffect(() => {
     (async () => {
@@ -163,6 +159,8 @@ function App() {
             <h2>shortcut keys</h2>
             <ul>
               <li>h: change color</li>
+              <li>c: set wave center at mouse pointer</li>
+              <li>shift + c: reset wave center on the center of screen</li>
             </ul>
           </div>
         </div>
