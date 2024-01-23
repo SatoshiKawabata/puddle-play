@@ -4,6 +4,8 @@ import { AudioPeak } from "../../audio/AudioPeak";
 import { useAnimationFrame } from "../../hooks/useRequestAnimationFrame";
 import PuddlePlayContainer from "../PuddlePlay/PuddlePlayContainer";
 import "./App.css";
+import { useHotkeys } from "react-hotkeys-hook";
+import { hexToHsv, hsvToHex } from "../../utils/colorUtilts";
 
 function App() {
   const [isShowUI, setIsShowUI] = useState(false);
@@ -38,6 +40,18 @@ function App() {
       }
     })();
   }, []);
+
+  // ショートカットキー
+  useHotkeys("h", () => {
+    // 色相を変化させる
+    const [h, s, v] = hexToHsv(color);
+    let newH = h + 0.01;
+    if (newH > 1) {
+      newH = 0;
+    }
+    const hex = hsvToHex(newH, s, v);
+    setColor(hex);
+  });
 
   useEffect(() => {
     document.addEventListener("keyup", (e) => {
@@ -144,6 +158,12 @@ function App() {
               style={{ width: 300 }}
             ></input>
             {damp}
+          </div>
+          <div>
+            <h2>shortcut keys</h2>
+            <ul>
+              <li>h: change color</li>
+            </ul>
           </div>
         </div>
       )}
